@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<constant name="struts.devMode" value="true"></constant>
+	<constant name="struts.ui.theme" value="simple"></constant><!-- 修改主题 -->
+	<!-- 开启静态方法调用 -->
+	<constant name="struts.ognl.allowStaticMethodAccess" value="true"></constant>
+	<!-- 自定义拦截器的配置 -->
+	<package name="mydefault" extends="struts-default" abstract="true">
+		<interceptors>
+			<interceptor name="CheckLoginInterceptor"
+				class="com.wz.web.interceptor.CheckLoginInterceptor"></interceptor>
+			<interceptor-stack name="myDefaultStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+				<interceptor-ref name="CheckLoginInterceptor"></interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<!-- 重置默认拦截器栈 -->
+		<default-interceptor-ref name="myDefaultStack"></default-interceptor-ref>
+		<!-- 全局结果视图 -->
+		<global-results>
+			<result name="login">/login/login.jsp</result>
+		</global-results>
+	</package>
+
+	<package name="p1" extends="struts-default">
+		<!-- 用户登录的动作 -->
+		<action name="login" class="com.wz.web.action.UserAction"
+			method="login">
+			<result>/login/home.jsp</result><!-- 登录成功，可以使用重定向 -->
+			<result name="input">/login/login.jsp</result>
+		</action>
+	</package>
+
+	<package name="user" extends="mydefault" namespace="/user">
+
+		<!-- 添加用户 -->
+		<action name="add" class="com.wz.web.action.UserAction" method="add">
+			<!-- 配置上传文件的扩展名限制 -->
+			<interceptor-ref name="defaultStack">
+				<param name="fileUpload.allowedExtensions">.doc,.docx</param>
+			</interceptor-ref>
+			<result>/user/list.jsp</result>
+			<result name="input">/user/add.jsp</result>
+		</action>
+
+		<!-- 查询所以用户 -->
+		<action name="findAll" class="com.wz.web.action.UserAction"
+			method="findAll">
+			<result>/user/list.jsp</result>
+		</action>
+
+		<!-- 查看用户详细信息 -->
+		<action name="findUserById" class="com.wz.web.action.UserAction" method="findUserById">
+			<result>/user/view.jsp</result>
+		</action>
+		
+		<!-- 文件下载 -->
+		<action name="download" class="com.wz.web.action.UserAction" method="download">
+			<result type="stream">
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename=${@java.net.URLEncoder@encode(oldFileName,"UTF-8")}</param>
+				<param name="contentType">application/octet-stream</param>
+			</result>
+		</action>
+		
+		<!-- 删除用户 -->
+		<action name="delete" class="com.wz.web.action.UserAction" method="delete">
+			<result type="redirectAction">findAll</result>
+		</action>
+		
+		<!-- 显示编辑用户页面 -->
+		<action name="editUI" class="com.wz.web.action.UserAction" method="editUI">
+			<result >/user/edit.jsp</result>
+		</action> 
+		
+		<!-- 编辑用户 -->
+		<action name="edit" class="com.wz.web.action.UserAction" method="edit">
+			<!-- 配置结果视图，当编辑成功之后，回到显示列表 -->
+			<result type="redirectAction">findAll</result>
+			<!-- 编辑 失败，回显数据 -->
+			<result name="input">/user/edit.jsp</result>
+		</action>
+		
+		<!-- 多条件查询 -->
+		<action name="findUserByCondition"  class="com.wz.web.action.UserAction" method="findUserByCondition">
+			<result>/user/list.jsp</result>
+		</action>
+	</package>
+
+</struts>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
